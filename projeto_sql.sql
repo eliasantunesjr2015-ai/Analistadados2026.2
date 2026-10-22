@@ -1,122 +1,136 @@
- USE projeto_sql;
 
--- TABELA 1: Contratacoes Localiza
-DROP TABLE IF EXISTS Contratacoes_localiza;
-CREATE TABLE projeto_sql.contratacoes_localiza (
-ID INT PRIMARY KEY,
-Nome_Completo VARCHAR(255) NOT NULL,
-Genero VARCHAR(50) NOT NULL,
-Cargo VARCHAR(150) NOT NULL,
-Salario DECIMAL(10,2) NOT NULL
+USE projeto_sql;
+
+-- ===========================================================================
+-- CRIAÇÃO DAS TABELAS
+-- ===========================================================================
+-- TABELA 1: Contratacao Localizar
+DROP TABLE IF EXISTS contratacao_localizar;
+CREATE TABLE contratacao_localizar (
+    ID INT PRIMARY KEY,
+    Genero VARCHAR(50) NOT NULL,
+    Cargo VARCHAR(150) NOT NULL,
+    Salario DECIMAL(10,2) NOT NULL,
+    Data_Contratacao DATE NOT NULL
 );
 
--- TABELA 2: Desligamentos funcionarios
-DROP TABLE IF EXISTS Desligamentos_funcionarios;
-CREATE TABLE Desligamentos_funcionarios (
-ID INT PRIMARY KEY,
-Genero VARCHAR(50) NOT NULL,
-Desligamentos INT NOT NULL,
-Taxa_Desligamento DECIMAL(5,2) NOT NULL
+
+-- TABELA 2: desligamentos funcionarios
+DROP TABLE IF EXISTS desligamentos_funcionarios;
+CREATE TABLE desligamentos_funcionarios (
+    ID INT PRIMARY KEY,
+    Genero VARCHAR(50) NOT NULL,
+    Motivo_Desligamento INT NOT NULL,
+    Data_Desligamento DECIMAL(5,2) NOT NULL
 );
 
--- TABELA 3: Contratacoes por regiao 
-DROP TABLE IF EXISTS contratacoes_regioes;
-CREATE TABLE contratacoes_regioes (
-id INT AUTO_INCREMENT PRIMARY KEY,
-Regiao VARCHAR(100) NOT NULL,
-Numero_Total_Contratacoes INT NOT NULL,
-Taxa_Contratacao DECIMAL(5,2) NOT NULL
+-- TABELA 3: Contratacao por regiao 
+DROP TABLE IF EXISTS contratacao_regioes;
+CREATE TABLE contratacao_regioes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    Regiao VARCHAR(100) NOT NULL,
+    Funcao INT NOT NULL,
+    Genero VARCHAR(50) NOT NULL
 );
 
--- TABELA 4: Desligamento por regiao
-DROP TABLE IF EXISTS desligamento_regiao;
-CREATE TABLE desligamento_regiao (
-id INT AUTO_INCREMENT PRIMARY KEY,
-Regiao VARCHAR(100) NOT NULL,
-Desligamentos INT NOT NULL,
-Taxa_Desligamento DECIMAL(5,2) NOT NULL
+-- TABELA 4: desligamentos por regiao
+DROP TABLE IF EXISTS desligamentos_por_regiao;
+CREATE TABLE desligamentos_por_regiao (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    Genero VARCHAR(50) NOT NULL,
+    Funcao INT NOT NULL,
+    Regiao VARCHAR(100) NOT NULL,
+    Motivo_Desligamento INT NOT NULL
 );
 
--- TABELA 5: Contratacoes faixa etaria
-DROP TABLE IF EXISTS contratacoes_faixaetaria;
-CREATE TABLE contratacoes_faixaetaria (
-id INT AUTO_INCREMENT PRIMARY KEY,
-Faixa_Etaria VARCHAR(50) NOT NULL,
-Numero_Total_Contratacoes INT NOT NULL,
-Taxa_Contratacao DECIMAL(5,2) NOT NULL
+-- TABELA 5: Contratacao faixa etaria
+DROP TABLE IF EXISTS contratacao_faixaetaria;
+CREATE TABLE contratacao_faixaetaria (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    Faixa_Etaria VARCHAR(50) NOT NULL,
+    genero INT NOT NULL,
+    Funcao INT NOT NULL,
+    Regiao INT NOT NULL
 );
 
--- TABELA 6: Desligamento faixa etaria
+-- TABELA 6: desligamento faixa etaria
 DROP TABLE IF EXISTS desligamento_faixaetaria;
 CREATE TABLE desligamento_faixaetaria (
-id INT AUTO_INCREMENT PRIMARY KEY,
-Faixa_Etaria VARCHAR(50) NOT NULL,
-Deskigamentos INT NOT NULL,
-Taxa_Desligamento DECIMAL(5,2) NOT NULL
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    Faixa_Etaria VARCHAR(50) NOT NULL,
+    genero INT NOT NULL,
+    funcao DECIMAL NOT NULL
 );
 
+-- EXIBIR TABELAS CRIADAS
 SHOW TABLES;
 
-SELECT 'Contratacoes_localiza' as tabela, COUNT(*) as total FROM projeto_sql.contratacoes_localiza UNION ALL
+-- VALIDAR QUANTIDADE DE REGISTROS 
+SELECT 'contratacao_localizar' AS tabela, COUNT(*) AS total FROM projeto_sql.contratacao_localizar UNION ALL
 SELECT 'desligamentos_funcionarios', COUNT(*) FROM projeto_sql.desligamentos_funcionarios UNION ALL
-SELECT 'contratacoes_regioes', COUNT(*) FROM projeto_sql.contratacoes_regioes UNION ALL
-SELECT 'desligamento_regiao', COUNT(*) FROM projeto_sql.desligamento_regiao UNION ALL
-SELECT 'contratacoes_faixaetaria', COUNT(*) FROM projeto_sql.contratacoes_faixaetaria UNION ALL
+SELECT 'contratacao_regioes', COUNT(*) FROM projeto_sql.contratacao_regioes UNION ALL
+SELECT 'desligamentos_por_regiao', COUNT(*) FROM projeto_sql.desligamentos_por_regiao UNION ALL
+SELECT 'contratacao_faixaetaria', COUNT(*) FROM projeto_sql.contratacao_faixaetaria UNION ALL
 SELECT 'desligamento_faixaetaria', COUNT(*) FROM projeto_sql.desligamento_faixaetaria;
 
 
+
 -- ===========================================================================
--- AS 5 CONSULTAS ESTRATÉGICAS FEITAS PELO RH, JUNTO AO FINANCEIRO E COMERCIAL
+-- AS 6 CONSULTAS ESTRATÉGICAS FEITAS PELO RH, JUNTO AO FINANCEIRO E COMERCIAL
 -- ===========================================================================
 
--- CONSULTA 1: Perfil Geral de Contratações por Cargo e Gênero (Mapeia os 9.156 registros)
--- Objetivo: Alimentar gráficos de distribuição de cargos, gêneros e salários.
+-- CONSULTA 1: Perfil Geral de Contratação por Cargo, Salário, Gênero e data de contratação
+-- Objetivo: Alimentar gráficos de distribuição de cargos, gêneros e salários detalhados.
 SELECT 
-    Nome_Completo,
     Genero, 
     Cargo, 
-    Salario 
-FROM projeto_sql.contratacoes_localiza;
+    Salario,
+    Data_Contratacao
+FROM projeto_sql.contratacao_localizar;
 
 
 -- CONSULTA 2: Análise Demográfica de Desligamentos por Gênero
 -- Objetivo: Exibir a proporção e volume de saídas divididos por gênero.
 SELECT 
     Genero, 
-    Desligamentos, 
-    Taxa_Desligamento 
+    Motivo_Desligamento, 
+    Data_Desligamento 
 FROM projeto_sql.desligamentos_funcionarios;
 
 
--- CONSULTA 3: Balanço de Movimentação por Região Geográfica (Contratações vs Desligamentos)
--- Objetivo: Comparar entradas e saídas por região em um gráfico de colunas agrupadas.
+-- CONSULTA 3: Balanço de Movimentação por contratação por região
+-- Objetivo: Comparar contratações por região em um gráfico de colunas agrupadas.
 SELECT 
-    c.Regiao, 
-    c.Numero_Total_Contratacoes, 
-    d.Desligamentos AS Total_Desligamentos
-FROM projeto_sql.contratacoes_regioes c
-INNER JOIN projeto_sql.desligamento_regiao d ON c.Regiao = d.Regiao;
+    Regiao, 
+    Funcao,
+    Genero
+FROM projeto_sql.contratacao_regioes;
 
 
--- CONSULTA 4: Distribuição de Novas Contratações por Faixa Etária
--- Objetivo: Demonstrar o volume e a taxa de atração de novos talentos por idade.
+-- CONSULTA 4: Desligamentos por região
+-- Objetivo: Demonstrar os desligamentos por região.
+SELECT 
+    Genero, 
+    Funcao,
+    Regiao,
+    Motivo_Desligamento
+FROM projeto_sql.desligamentos_por_regiao;
+
+
+-- CONSULTA 5: Mapeamento de contratação por faixa etária
+-- Objetivo: Identificar as contratações feitas por faixa etária e suas funções.
 SELECT 
     Faixa_Etaria, 
-    Numero_Total_Contratacoes, 
-    Taxa_Contratacao 
-FROM projeto_sql.contratacoes_faixaetaria;
+    Genero,
+    Funcao,
+    Regiao
+FROM projeto_sql.contratacao_faixaetaria;
 
 
--- CONSULTA 5: Mapeamento de Desligamentos por Faixa Etária
--- Objetivo: Identificar qual grupo geracional possui o maior índice de turnover.
+-- CONSULTA 6: Mapeamento de desligamento por faixa etária
+-- Objetivo: Identificar os desligamentos por faixa etária e suas funções.
 SELECT 
-    Faixa_Etaria, 
-    Deskigamentos AS Total_Desligamentos, 
-    Taxa_Desligamento 
+    Faixa_Etaria,
+    genero,
+    funcao
 FROM projeto_sql.desligamento_faixaetaria;
-
-
-
-
-
-
